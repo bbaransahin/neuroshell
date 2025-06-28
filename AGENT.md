@@ -4,6 +4,10 @@
 
 The **NeuroShell Agent** is the modular AI system that enables natural language interaction, voice input, and shell-level task execution inside the NeuroShell terminal. This document defines the agent's purpose, architecture, naming conventions, code structure, and development guidelines.
 
+The repository now also contains a windowless terminal GUI implemented with the
+`curses` library. It displays a single input line and prints user input to
+stdout. This GUI is lightweight and located in `gui/windowless.py`.
+
 ---
 
 ## 🧩 Agent Architecture
@@ -86,4 +90,6 @@ agent/
 │   ├── fileEditor.js
 └── memory/
     └── contextCache.js
+gui/
+└── windowless.py
 
