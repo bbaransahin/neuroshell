@@ -2,8 +2,12 @@ Neuroshell is an AI embedded terminal and focused on making the terminal more am
 
 ## Windowless GUI
 
-The project now includes a minimal terminal-based GUI implemented with the
-`curses` library. It runs full-screen with no window decorations and presents a
-single input line at the bottom. Type a command and press **Enter** to send it.
-Press `Esc` to exit. The script lives in `gui/windowless.py` and is designed to
-be easily extended with ambient animations in the future.
+The GUI is built with **Electron**, **React**, and **xterm.js**. It opens a fullscreen, borderless window and runs your shell through `node-pty`. The terminal behaves like a standard one and is ready for future animated backgrounds.
+
+### Running the GUI
+
+```bash
+cd gui/electron
+npm install
+npm start
+```
