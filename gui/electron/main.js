@@ -3,9 +3,10 @@ const os = require('os');
 const pty = require('node-pty');
 
 let ptyProcess;
+let win;
 
 function createWindow() {
-  const win = new BrowserWindow({
+  win = new BrowserWindow({
     width: 800,
     height: 600,
     frame: false,
@@ -32,6 +33,12 @@ ipcMain.on('start-shell', (event) => {
     env: process.env
   });
   ptyProcess.on('data', (data) => event.sender.send('shell-data', data));
+  ptyProcess.on('exit', () => {
+    if (win) {
+      win.close();
+    }
+    app.quit();
+  });
 });
 
 ipcMain.on('terminal-data', (_, data) => {
