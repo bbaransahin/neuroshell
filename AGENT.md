@@ -5,9 +5,9 @@
 The **NeuroShell Agent** is the modular AI system that enables natural language interaction, voice input, and shell-level task execution inside the NeuroShell terminal. This document defines the agent's purpose, architecture, naming conventions, code structure, and development guidelines.
 
 The repository now also includes a windowless terminal GUI built with
-**Electron**, **React**, and **xterm.js**. It spawns a real shell via
-`node-pty` to provide a fully functional terminal. The implementation lives in
-`gui/electron/`.
+**Electron**, **React**, and **xterm.js**. It opens a borderless window
+(800x600 by default) and spawns a real shell via `node-pty` to provide a fully
+functional terminal. The implementation lives in `gui/electron/`.
 
 ---
 

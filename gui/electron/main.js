@@ -6,8 +6,11 @@ let ptyProcess;
 
 function createWindow() {
   const win = new BrowserWindow({
-    fullscreen: true,
+    width: 800,
+    height: 600,
     frame: false,
+    fullscreen: false,
+    autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false
