@@ -13,6 +13,7 @@ function TerminalApp() {
     term.loadAddon(fitAddon);
     term.open(containerRef.current);
     fitAddon.fit();
+    term.focus();
     term.onData(data => ipcRenderer.send('terminal-data', data));
     ipcRenderer.on('shell-data', (_, d) => term.write(d));
     ipcRenderer.send('start-shell');

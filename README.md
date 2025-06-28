@@ -9,5 +9,6 @@ The GUI is built with **Electron**, **React**, and **xterm.js**. It opens a bord
 ```bash
 cd gui/electron
 npm install
+npx electron-rebuild
 npm start
 ```
