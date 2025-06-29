@@ -15,6 +15,16 @@ function TerminalApp() {
     term.loadAddon(fitAddon);
     term.open(containerRef.current);
     fitAddon.fit();
+
+    const viewport = containerRef.current.querySelector('.xterm-viewport');
+    if (viewport) {
+      let scrollTimeout;
+      viewport.addEventListener('scroll', () => {
+        viewport.classList.add('scrolling');
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => viewport.classList.remove('scrolling'), 800);
+      });
+    }
     term.focus();
     term.onData(data => ipcRenderer.send('terminal-data', data));
     ipcRenderer.on('shell-data', (_, d) => term.write(d));
