@@ -31,10 +31,7 @@ function TerminalApp() {
       brightWhite: '#ffffff'
     };
 
-    const term = new Terminal({
-      theme,
-      smoothScrollDuration: 150
-    });
+    const term = new Terminal({ theme });
     const fitAddon = new FitAddon();
     term.loadAddon(fitAddon);
     term.open(containerRef.current);
@@ -46,14 +43,26 @@ function TerminalApp() {
 
     const viewport = containerRef.current.querySelector('.xterm-viewport');
     if (viewport) {
-      viewport.style.scrollBehavior = 'smooth';
       let snapTimeout;
+      const animateTo = (target) => {
+        const start = viewport.scrollTop;
+        const diff = target - start;
+        const startTime = performance.now();
+        const duration = 150;
+        const step = (t) => {
+          const progress = Math.min((t - startTime) / duration, 1);
+          viewport.scrollTop = start + diff * progress;
+          if (progress < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      };
+
       const alignViewport = () => {
         const cellHeight = term._core?._renderService.dimensions.css.cell.height;
         if (!cellHeight) return;
         const target = Math.round(viewport.scrollTop / cellHeight) * cellHeight;
         if (target !== viewport.scrollTop) {
-          viewport.scrollTo({ top: target, behavior: 'smooth' });
+          animateTo(target);
         }
       };
 
@@ -66,6 +75,7 @@ function TerminalApp() {
         'wheel',
         (e) => {
           e.preventDefault();
+          e.stopPropagation();
           viewport.scrollTop += e.deltaY;
           scheduleSnap();
         },
