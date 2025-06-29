@@ -47,24 +47,30 @@ function TerminalApp() {
     const viewport = containerRef.current.querySelector('.xterm-viewport');
     if (viewport) {
       viewport.style.scrollBehavior = 'smooth';
-      let scrollTimeout;
+      let snapTimeout;
       const alignViewport = () => {
         const cellHeight = term._core?._renderService.dimensions.css.cell.height;
-        if (cellHeight) {
-          const target = Math.round(viewport.scrollTop / cellHeight) * cellHeight;
-          if (target !== viewport.scrollTop) {
-            viewport.scrollTo({ top: target, behavior: 'smooth' });
-          }
+        if (!cellHeight) return;
+        const target = Math.round(viewport.scrollTop / cellHeight) * cellHeight;
+        if (target !== viewport.scrollTop) {
+          viewport.scrollTo({ top: target, behavior: 'smooth' });
         }
       };
-      viewport.addEventListener('scroll', () => {
-        viewport.classList.add('scrolling');
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => {
-          viewport.classList.remove('scrolling');
-          alignViewport();
-        }, 200);
-      });
+
+      const scheduleSnap = () => {
+        clearTimeout(snapTimeout);
+        snapTimeout = setTimeout(alignViewport, 100);
+      };
+
+      viewport.addEventListener(
+        'wheel',
+        (e) => {
+          e.preventDefault();
+          viewport.scrollTop += e.deltaY;
+          scheduleSnap();
+        },
+        { passive: false }
+      );
     }
     term.focus();
     term.onData(data => ipcRenderer.send('terminal-data', data));
