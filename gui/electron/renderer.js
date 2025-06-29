@@ -31,7 +31,10 @@ function TerminalApp() {
       brightWhite: '#ffffff'
     };
 
-    const term = new Terminal({ theme });
+    const term = new Terminal({
+      theme,
+      smoothScrollDuration: 150
+    });
     const fitAddon = new FitAddon();
     term.loadAddon(fitAddon);
     term.open(containerRef.current);
@@ -43,11 +46,24 @@ function TerminalApp() {
 
     const viewport = containerRef.current.querySelector('.xterm-viewport');
     if (viewport) {
+      viewport.style.scrollBehavior = 'smooth';
       let scrollTimeout;
+      const alignViewport = () => {
+        const cellHeight = term._core?._renderService.dimensions.css.cell.height;
+        if (cellHeight) {
+          const target = Math.round(viewport.scrollTop / cellHeight) * cellHeight;
+          if (target !== viewport.scrollTop) {
+            viewport.scrollTo({ top: target, behavior: 'smooth' });
+          }
+        }
+      };
       viewport.addEventListener('scroll', () => {
         viewport.classList.add('scrolling');
         clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => viewport.classList.remove('scrolling'), 800);
+        scrollTimeout = setTimeout(() => {
+          viewport.classList.remove('scrolling');
+          alignViewport();
+        }, 200);
       });
     }
     term.focus();
