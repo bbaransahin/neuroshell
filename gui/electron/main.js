@@ -12,6 +12,8 @@ function createWindow() {
     frame: false,
     fullscreen: false,
     autoHideMenuBar: true,
+    transparent: true,
+    backgroundColor: '#00000000',
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false
