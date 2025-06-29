@@ -13,11 +13,17 @@
 
       #root {
         height: 100%;
+        box-sizing: border-box;
+        padding: 10px;
         background: linear-gradient(120deg, #a1c4fd, #c2e9fb, #a1c4fd);
         background-size: 400% 400%;
         animation: cloudAnimation 60s ease-in-out infinite;
         border-radius: 20px;
         overflow: hidden;
+      }
+
+      .xterm, .xterm-viewport, .xterm-screen {
+        background-color: transparent !important;
       }
 
       @keyframes cloudAnimation {

@@ -8,7 +8,9 @@ function TerminalApp() {
   const containerRef = React.useRef(null);
 
   React.useEffect(() => {
-    const term = new Terminal();
+    const term = new Terminal({
+      theme: { background: 'transparent' }
+    });
     const fitAddon = new FitAddon();
     term.loadAddon(fitAddon);
     term.open(containerRef.current);
