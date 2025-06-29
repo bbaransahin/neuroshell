@@ -35,7 +35,11 @@ function TerminalApp() {
     const fitAddon = new FitAddon();
     term.loadAddon(fitAddon);
     term.open(containerRef.current);
-    fitAddon.fit();
+    const fitAndResize = () => {
+      fitAddon.fit();
+      ipcRenderer.send('resize', { cols: term.cols, rows: term.rows });
+    };
+    fitAndResize();
 
     const viewport = containerRef.current.querySelector('.xterm-viewport');
     if (viewport) {
@@ -49,8 +53,8 @@ function TerminalApp() {
     term.focus();
     term.onData(data => ipcRenderer.send('terminal-data', data));
     ipcRenderer.on('shell-data', (_, d) => term.write(d));
-    ipcRenderer.send('start-shell');
-    window.addEventListener('resize', () => fitAddon.fit());
+    ipcRenderer.send('start-shell', { cols: term.cols, rows: term.rows });
+    window.addEventListener('resize', fitAndResize);
   }, []);
 
   return React.createElement('div', { ref: containerRef, style: { height: '100%', width: '100%' } });

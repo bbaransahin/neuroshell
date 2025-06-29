@@ -25,12 +25,13 @@ function createWindow() {
 
 app.whenReady().then(createWindow);
 
-ipcMain.on('start-shell', (event) => {
+ipcMain.on('start-shell', (event, size = {}) => {
   const shell = os.platform() === 'win32' ? 'powershell.exe' : process.env.SHELL || 'bash';
+  const { cols = 80, rows = 24 } = size;
   ptyProcess = pty.spawn(shell, [], {
     name: 'xterm-color',
-    cols: 80,
-    rows: 24,
+    cols,
+    rows,
     cwd: process.env.HOME,
     env: process.env
   });
@@ -45,4 +46,10 @@ ipcMain.on('start-shell', (event) => {
 
 ipcMain.on('terminal-data', (_, data) => {
   ptyProcess && ptyProcess.write(data);
+});
+
+ipcMain.on('resize', (_, size) => {
+  if (ptyProcess && size) {
+    ptyProcess.resize(size.cols, size.rows);
+  }
 });
