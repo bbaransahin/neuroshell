@@ -12,85 +12,35 @@ functional terminal. The implementation lives in `gui/electron/`.
 ---
 
 ## 🧩 Agent Architecture
+internal architecture of the **agentic AI system** embedded in the `neuroshell` project. The agent lives in its own development branch and is designed to interpret natural language instructions, plan their execution, interact with the terminal environment, and display output in the `neuroshell` GUI.
 
-### 🔄 Core Components
+The agent works in the following pipeline:
 
-| Module          | Responsibility |
-|-----------------|----------------|
-| `agent/core.js` | Main controller: input routing, response orchestration |
-| `agent/nlu/`    | Natural Language Understanding (GPT prompt logic, parsing) |
-| `agent/io/`     | Input/output (speech recognition, TTS, shell I/O) |
-| `agent/memory/` | (Optional) Persistent memory, context tracking |
-| `agent/tools/`  | Task runners: code gen, file ops, command wrappers |
+1. **Intent Parsing**  
+   Input from the user is parsed using a GPT-based model to understand what the user wants.
 
----
+2. **Planning**  
+   The intent is broken down into smaller executable steps in plain language.
 
-## 🧠 Naming Conventions
+3. **Tool Selection + Execution**  
+   These steps are converted into shell commands or code edits, and executed via tools (primarily the shell environment itself).
 
-### ✅ Files & Folders
-- Use `kebab-case` for **folders**
-- Use `camelCase` for **functions and variables**
-- Use `PascalCase` for **classes**
-- Prefix agent tools with `agent` or `ai` if used across systems
-
-Example:
-agent/
-core.js
-nlu/
-promptBuilder.js
-commandParser.js
-io/
-voiceInput.js
-shellInterface.js
-
-### ✅ Functions
-- Functions should be **pure where possible**
-- Function names must describe **intent** clearly:  
-  - `buildPromptFromInput(input)`  
-  - `executeShellCommand(cmd)`  
-  - `speakResponse(text)`
+4. **Output Display**  
+   All output is displayed directly to the terminal, with no filtering.
 
 ---
-
-## 🚦 Agent Behavior Guidelines
-
-- Default mode is **non-executing** — commands must be confirmed before run.
-- Agent must gracefully degrade if GPT or TTS is unavailable.
-- All interactions must pass through `agent/core.js` for consistency.
-
----
-
-## 🛠️ Extending the Agent
-
-To add a new skill/tool:
-1. Create a module in `agent/tools/` (e.g., `summarizer.js`)
-2. Export a function: `async function run(args)`
-3. Register it in `agent/core.js` with a handler key or intent pattern
-
-Example:
-```js
-// core.js
-if (intent === 'summarize') {
-  return await runSummarizer(args)
-}
-```
 
 ## File Structure
-agent/
-├── core.js
-├── config.js
-├── io/
-│   ├── voiceInput.js
-│   ├── ttsOutput.js
-│   └── shellInterface.js
-├── nlu/
-│   ├── promptBuilder.js
-│   ├── commandParser.js
-├── tools/
-│   ├── codeGenerator.js
-│   ├── fileEditor.js
-└── memory/
-    └── contextCache.js
+agent/                      # Agent-specific logic and configuration
+    ├── __init__.py
+    ├── parser.py              # Parses user input into intent
+    ├── planner.py             # Breaks intent into steps
+    ├── executor.py            # Executes selected tools/commands
+    ├── tools/                 # Toolset layer (terminal interaction, file I/O, etc.)
+    │   ├── shell.py
+    │   └── editor.py
+    └── memory.py              # Logs, history, context
+
 gui/
 └── electron/
     ├── main.js
