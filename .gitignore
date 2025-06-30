@@ -3,3 +3,5 @@ gui/electron/package-lock.json
 
 # Python artifacts
 __pycache__/
+
+.env
