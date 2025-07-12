@@ -94,3 +94,41 @@ def execute_steps(steps: List[str], parsed: Dict[str, Any]) -> List[Dict[str, An
             state["output"] = f"Error executing command: {exc}"
 
     return step_states
+
+
+def stream_execute_steps(steps: List[str], parsed: Dict[str, Any]):
+    """Yield the state for each step as it is executed."""
+
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+    if openai.api_key is None:
+        yield {"error": "OPENAI_API_KEY environment variable not set"}
+        return
+
+    step_states: List[Dict[str, Any]] = [
+        {
+            "description": desc,
+            "executableCommand": None,
+            "output": None,
+            "isDone": False,
+        }
+        for desc in steps
+    ]
+
+    for idx, state in enumerate(step_states):
+        try:
+            command = _generate_command(state["description"], step_states[:idx], parsed)
+            state["executableCommand"] = command
+        except Exception as exc:  # pragma: no cover - network call
+            state["output"] = f"Error generating command: {exc}"
+            yield state
+            continue
+
+        try:
+            cmd_list = shlex.split(command)
+            result = run_command(cmd_list)
+            state["output"] = result
+            state["isDone"] = True
+        except Exception as exc:  # pragma: no cover - execution error
+            state["output"] = f"Error executing command: {exc}"
+
+        yield state

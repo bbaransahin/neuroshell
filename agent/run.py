@@ -3,6 +3,9 @@ import parser
 import planner
 import executor
 
+GRAY = "\033[90m"
+RESET = "\033[0m"
+
 def main():
     if len(sys.argv) < 2:
         print("Usage: python try.py 'your command here'")
@@ -13,21 +16,22 @@ def main():
     # Signal start of agent execution for the GUI
     print("[NEURO_START]", flush=True)
 
-    print(f"\n🧠 User Input:\n{user_input}\n")
+    print(f"{GRAY}\nUser Input:\n{user_input}\n{RESET}")
 
     parsed = parser.parse_intent(user_input)
-    print(f"\n🔍 Parsed Intent:\n{parsed}\n")
+    print(f"{GRAY}\nParsed Intent:\n{parsed}\n{RESET}")
 
     steps = planner.plan_steps(parsed)
-    print(f"\n🪜 Planned Steps:\n{steps}\n")
+    print(f"{GRAY}\nPlanned Steps:\n{steps}\n{RESET}")
 
-    executions = executor.execute_steps(steps, parsed)
-    print(f"\n⚙️ Execution Results:")
-    for i, result in enumerate(executions, 1):
-        print(f"\nStep {i}: {result['description']}")
-        print(f"Command: {result['executableCommand']}")
-        print(f"Output:\n{result['output']}")
-        print(f"✅ Success: {result['isDone']}")
+    print(f"{GRAY}Execution Results:{RESET}")
+    for i, result in enumerate(executor.stream_execute_steps(steps, parsed), 1):
+        print(
+            f"{GRAY}\nStep {i}: {result['description']}\n"
+            f"Command: {result['executableCommand']}\n"
+            f"Output:\n{result['output']}\n"
+            f"Success: {result['isDone']}{RESET}"
+        )
 
     # Signal end of agent execution for the GUI
     print("[NEURO_END]", flush=True)
