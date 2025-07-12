@@ -6,6 +6,17 @@ The GUI is built with **Electron**, **React**, and **xterm.js**. It opens a bord
 
 Type `exit` inside the terminal to close the shell and quit the GUI.
 
+### Agent Command
+
+Inside the GUI shell you can run the NeuroShell agent by typing:
+
+```bash
+neuro <your request here>
+```
+
+While the agent runs, the background clouds turn reddish and move faster.
+When finished, the theme returns to normal.
+
 ### Running the GUI
 
 ```bash

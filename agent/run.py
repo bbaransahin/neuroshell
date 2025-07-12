@@ -10,6 +10,9 @@ def main():
 
     user_input = " ".join(sys.argv[1:])
 
+    # Signal start of agent execution for the GUI
+    print("[NEURO_START]", flush=True)
+
     print(f"\n🧠 User Input:\n{user_input}\n")
 
     parsed = parser.parse_intent(user_input)
@@ -25,6 +28,9 @@ def main():
         print(f"Command: {result['executableCommand']}")
         print(f"Output:\n{result['output']}")
         print(f"✅ Success: {result['isDone']}")
+
+    # Signal end of agent execution for the GUI
+    print("[NEURO_END]", flush=True)
 
 if __name__ == "__main__":
     main()

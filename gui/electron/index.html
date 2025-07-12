@@ -11,13 +11,19 @@
         overflow: hidden;
       }
 
+      :root {
+        --cloud-color1: #a1c4fd;
+        --cloud-color2: #c2e9fb;
+        --cloud-speed: 60s;
+      }
+
       #root {
         height: 100%;
         box-sizing: border-box;
         padding: 10px;
-        background: linear-gradient(120deg, #a1c4fd, #c2e9fb, #a1c4fd);
+        background: linear-gradient(120deg, var(--cloud-color1), var(--cloud-color2), var(--cloud-color1));
         background-size: 400% 400%;
-        animation: cloudAnimation 60s ease-in-out infinite;
+        animation: cloudAnimation var(--cloud-speed) ease-in-out infinite;
         border-radius: 20px;
         overflow: hidden;
       }

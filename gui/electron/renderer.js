@@ -35,6 +35,20 @@ function TerminalApp() {
     const fitAddon = new FitAddon();
     term.loadAddon(fitAddon);
     term.open(containerRef.current);
+    const root = document.getElementById('root');
+
+    const setAgentTheme = (active) => {
+      if (!root) return;
+      if (active) {
+        root.style.setProperty('--cloud-color1', '#ff9a9e');
+        root.style.setProperty('--cloud-color2', '#fecfef');
+        root.style.setProperty('--cloud-speed', '20s');
+      } else {
+        root.style.setProperty('--cloud-color1', '#a1c4fd');
+        root.style.setProperty('--cloud-color2', '#c2e9fb');
+        root.style.setProperty('--cloud-speed', '60s');
+      }
+    };
     const fitAndResize = () => {
       fitAddon.fit();
       ipcRenderer.send('resize', { cols: term.cols, rows: term.rows });
@@ -52,7 +66,17 @@ function TerminalApp() {
     }
     term.focus();
     term.onData(data => ipcRenderer.send('terminal-data', data));
-    ipcRenderer.on('shell-data', (_, d) => term.write(d));
+    ipcRenderer.on('shell-data', (_, d) => {
+      if (d.includes('[NEURO_START]')) {
+        setAgentTheme(true);
+        d = d.replace('[NEURO_START]', '');
+      }
+      if (d.includes('[NEURO_END]')) {
+        setAgentTheme(false);
+        d = d.replace('[NEURO_END]', '');
+      }
+      term.write(d);
+    });
     ipcRenderer.send('start-shell', { cols: term.cols, rows: term.rows });
     window.addEventListener('resize', fitAndResize);
   }, []);

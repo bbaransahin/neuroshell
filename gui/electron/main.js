@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const os = require('os');
+const path = require('path');
 const pty = require('node-pty');
 
 let ptyProcess;
@@ -37,6 +38,8 @@ ipcMain.on('start-shell', (event, size = {}) => {
     cwd: process.env.HOME,
     env: process.env
   });
+  const aliasCmd = `alias neuro=\"python3 ${path.join(__dirname, '..', '..', 'agent', 'run.py')}\"\n`;
+  ptyProcess.write(aliasCmd);
   ptyProcess.on('data', (data) => event.sender.send('shell-data', data));
   ptyProcess.on('exit', () => {
     if (win) {
