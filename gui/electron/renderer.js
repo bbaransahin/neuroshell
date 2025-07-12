@@ -40,12 +40,10 @@ function TerminalApp() {
     const setAgentTheme = (active) => {
       if (!root) return;
       if (active) {
-        root.style.setProperty('--cloud-color1', '#ff9a9e');
-        root.style.setProperty('--cloud-color2', '#fecfef');
+        root.classList.add('agent-active');
         root.style.setProperty('--cloud-speed', '20s');
       } else {
-        root.style.setProperty('--cloud-color1', '#a1c4fd');
-        root.style.setProperty('--cloud-color2', '#c2e9fb');
+        root.classList.remove('agent-active');
         root.style.setProperty('--cloud-speed', '60s');
       }
     };
