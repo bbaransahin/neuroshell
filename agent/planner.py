@@ -30,7 +30,7 @@ def plan_steps(intent: Dict[str, Any]) -> List[str]:
                 "You are a planning module for a shell-based AI assistant. "
                 "Given a JSON object describing an intent, respond ONLY with "
                 "a JSON array containing short, ordered steps to accomplish "
-                "that intent."
+                "that intent. The steps should be verbally, don't share shell command etc."
             ),
         },
         {"role": "user", "content": json.dumps(intent)},

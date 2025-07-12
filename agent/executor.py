@@ -10,45 +10,51 @@ from typing import Any, Dict, List
 from dotenv import load_dotenv
 import openai
 
-from .tools.shell import run_command
+from tools.shell import run_command
 
 load_dotenv()
 
 
-def _generate_command(step: str, context: List[Dict[str, Any]]) -> str:
+def _generate_command(step: str, context: List[Dict[str, Any]], parsed: Dict[str, Any]) -> str:
     """Use OpenAI to generate a shell command for a step."""
 
     messages = [
         {
             "role": "system",
             "content": (
-                "You generate shell commands for a Linux environment. "
-                "Given a step description and the context of previous steps, "
-                "respond ONLY with a JSON object containing a 'command' field.",
+                "You are a Linux shell assistant. Given a description of a task, "
+                "you respond with a single JSON object containing only one field: 'command'."
+                "Do not include explanations or text outside the JSON."
             ),
         },
         {
             "role": "user",
-            "content": json.dumps({"step": step, "context": context}),
+            "content": (
+                f"Step: {step}\n"
+                f"Previous steps (for context): {[s['description'] for s in context]}"
+                f"Parsed user intent (for context): {parsed}"
+            ),
         },
     ]
 
     response = openai.chat.completions.create(
-        model="gpt-3.5-turbo", messages=messages
+        model="gpt-3.5-turbo",
+        messages=messages,
     )
+
     content = response.choices[0].message.content.strip()
+
     try:
         data = json.loads(content)
-    except json.JSONDecodeError as exc:  # pragma: no cover - network call
-        raise RuntimeError(f"Failed to parse command JSON: {exc}") from exc
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"Failed to parse command JSON: {exc}\nRaw content:\n{content}") from exc
 
     cmd = data.get("command")
     if not isinstance(cmd, str):
         raise RuntimeError("Command field missing in response")
     return cmd
 
-
-def execute_steps(steps: List[str]) -> List[Dict[str, Any]]:
+def execute_steps(steps: List[str], parsed: Dict[str, Any]) -> List[Dict[str, Any]]:
     """Execute a list of plain-text steps.
 
     Each step is converted to an executable shell command using an OpenAI
@@ -73,7 +79,7 @@ def execute_steps(steps: List[str]) -> List[Dict[str, Any]]:
 
     for idx, state in enumerate(step_states):
         try:
-            command = _generate_command(state["description"], step_states[:idx])
+            command = _generate_command(state["description"], step_states[:idx], parsed)
             state["executableCommand"] = command
         except Exception as exc:  # pragma: no cover - network call
             state["output"] = f"Error generating command: {exc}"
