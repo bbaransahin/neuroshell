@@ -19,18 +19,24 @@ def main():
     print(f"{GRAY}\nUser Input:\n{user_input}\n{RESET}")
 
     parsed = parser.parse_intent(user_input)
-    print(f"{GRAY}\nParsed Intent:\n{parsed}\n{RESET}")
+    print(f"{GRAY}Parsed Intent{RESET}")
+    for key, value in parsed.items():
+        print(f"{GRAY}{key}: {value}{RESET}")
+    print(f"{GRAY}{'-'*32}{RESET}")
 
     steps = planner.plan_steps(parsed)
-    print(f"{GRAY}\nPlanned Steps:\n{steps}\n{RESET}")
+    print(f"{GRAY}Steps{RESET}")
+    for step in steps:
+        print(f"{GRAY}{step}{RESET}")
+    print(f"{GRAY}{'-'*32}\nExecution Results:{RESET}")
 
-    print(f"{GRAY}Execution Results:{RESET}")
     for i, result in enumerate(executor.stream_execute_steps(steps, parsed), 1):
         print(
             f"{GRAY}\nStep {i}: {result['description']}\n"
             f"Command: {result['executableCommand']}\n"
             f"Output:\n{result['output']}\n"
-            f"Success: {result['isDone']}{RESET}"
+            f"Success: {result['isDone']}{RESET}",
+            flush=True,
         )
 
     # Signal end of agent execution for the GUI
