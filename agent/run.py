@@ -4,14 +4,18 @@ from __future__ import annotations
 
 import os
 import sys
+import warnings
 
 from langchain_openai import ChatOpenAI
 from langchain.agents import AgentType, Tool, initialize_agent
+from langchain._api.deprecation import LangChainDeprecationWarning
 
 from tools.shell import run_command
 
 GRAY = "\033[90m"
 RESET = "\033[0m"
+
+warnings.filterwarnings("ignore", category=LangChainDeprecationWarning)
 
 
 def main() -> None:
@@ -49,14 +53,23 @@ def main() -> None:
         verbose=False,
     )
 
+    final = None
     try:
-        result = agent.invoke(user_input)
+        for chunk in agent.stream(user_input):
+            if "actions" in chunk:
+                for action in chunk["actions"]:
+                    print(f"{GRAY}{action.log}{RESET}", flush=True)
+            if "steps" in chunk:
+                for step in chunk["steps"]:
+                    print(f"{GRAY}Observation: {step.observation}{RESET}", flush=True)
+            if "output" in chunk:
+                final = chunk["output"]
     except Exception as exc:  # pragma: no cover - network call
         print(f"{GRAY}Error: {exc}{RESET}")
         print("[NEURO_END]", flush=True)
         return
 
-    print(f"{GRAY}Agent Output:\n{result}{RESET}")
+    print(f"{GRAY}Agent Output:\n{final}{RESET}")
     print("[NEURO_END]", flush=True)
 
 
