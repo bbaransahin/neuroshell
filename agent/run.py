@@ -1,10 +1,12 @@
 """Entry point for the NeuroShell agent using LangChain ReAct."""
 
+from __future__ import annotations
+
 import os
 import sys
 
-from langchain_community.chat_models import ChatOpenAI
-from langchain.agents import Tool, initialize_agent, AgentType
+from langchain_openai import ChatOpenAI
+from langchain.agents import AgentType, Tool, initialize_agent
 
 from tools.shell import run_command
 
@@ -28,8 +30,8 @@ def main() -> None:
     print(f"{GRAY}\nUser Input:\n{user_input}\n{RESET}")
 
     def shell_tool(command: str) -> str:
-        """Execute a shell command and return its output."""
-        return run_command(command.split())
+        """Execute a shell command and return at most 2000 chars of its output."""
+        return run_command(command.split(), max_chars=2000)
 
     tools = [
         Tool(
@@ -48,7 +50,7 @@ def main() -> None:
     )
 
     try:
-        result = agent.run(user_input)
+        result = agent.invoke(user_input)
     except Exception as exc:  # pragma: no cover - network call
         print(f"{GRAY}Error: {exc}{RESET}")
         print("[NEURO_END]", flush=True)
