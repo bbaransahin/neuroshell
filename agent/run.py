@@ -1,46 +1,62 @@
+"""Entry point for the NeuroShell agent using LangChain ReAct."""
+
+import os
 import sys
-import parser
-import planner
-import executor
+
+from langchain_community.chat_models import ChatOpenAI
+from langchain.agents import Tool, initialize_agent, AgentType
+
+from tools.shell import run_command
 
 GRAY = "\033[90m"
 RESET = "\033[0m"
 
-def main():
+
+def main() -> None:
+    """Run the NeuroShell agent."""
     if len(sys.argv) < 2:
-        print("Usage: python try.py 'your command here'")
+        print("Usage: python run.py 'your request here'")
+        return
+
+    if os.getenv("OPENAI_API_KEY") is None:
+        print("Error: OPENAI_API_KEY environment variable not set")
         return
 
     user_input = " ".join(sys.argv[1:])
 
-    # Signal start of agent execution for the GUI
     print("[NEURO_START]", flush=True)
-
     print(f"{GRAY}\nUser Input:\n{user_input}\n{RESET}")
 
-    parsed = parser.parse_intent(user_input)
-    print(f"{GRAY}Parsed Intent{RESET}")
-    for key, value in parsed.items():
-        print(f"{GRAY}{key}: {value}{RESET}")
-    print(f"{GRAY}{'-'*32}{RESET}")
+    def shell_tool(command: str) -> str:
+        """Execute a shell command and return its output."""
+        return run_command(command.split())
 
-    steps = planner.plan_steps(parsed)
-    print(f"{GRAY}Steps{RESET}")
-    for step in steps:
-        print(f"{GRAY}{step}{RESET}")
-    print(f"{GRAY}{'-'*32}\nExecution Results:{RESET}")
-
-    for i, result in enumerate(executor.stream_execute_steps(steps, parsed), 1):
-        print(
-            f"{GRAY}\nStep {i}: {result['description']}\n"
-            f"Command: {result['executableCommand']}\n"
-            f"Output:\n{result['output']}\n"
-            f"Success: {result['isDone']}{RESET}",
-            flush=True,
+    tools = [
+        Tool(
+            name="shell",
+            func=shell_tool,
+            description="Execute shell commands",
         )
+    ]
 
-    # Signal end of agent execution for the GUI
+    llm = ChatOpenAI(model="gpt-3.5-turbo")
+    agent = initialize_agent(
+        tools,
+        llm,
+        agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+        verbose=False,
+    )
+
+    try:
+        result = agent.run(user_input)
+    except Exception as exc:  # pragma: no cover - network call
+        print(f"{GRAY}Error: {exc}{RESET}")
+        print("[NEURO_END]", flush=True)
+        return
+
+    print(f"{GRAY}Agent Output:\n{result}{RESET}")
     print("[NEURO_END]", flush=True)
+
 
 if __name__ == "__main__":
     main()
